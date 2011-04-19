@@ -8,17 +8,18 @@ from stat import ST_SIZE, ST_MTIME, S_ISDIR
 import atexit
 
 
-# get the username and password
-local_bucket,remote_bucket,host,username,password = tuple(sys.argv[1:6])
-
-print 'local_bucket:',local_bucket
-print 'remote_bucket:',remote_bucket
-print 'host:',host
-print 'username:',username
-print 'password:',len(password) * '*'
 
 
 def run():
+
+    # get the username and password
+    local_bucket,remote_bucket,host,username,password = tuple(sys.argv[1:6])
+
+    print 'local_bucket:',local_bucket
+    print 'remote_bucket:',remote_bucket
+    print 'host:',host
+    print 'username:',username
+    print 'password:',len(password) * '*'
 
     # check our lock. if it's set exit if it
     # isn't set than set it and go
