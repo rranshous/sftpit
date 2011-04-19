@@ -3,3 +3,7 @@ the goal is to have an application which keeps a computer
 in sync w/ a remote server's data.
 
 think dropbox but for groups (and w/ less features)
+
+to run:
+
+python backup.py <local data path> <remote data path> <host> <username> <password>
