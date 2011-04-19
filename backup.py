@@ -1,7 +1,4 @@
 
-
-
-
 # the goal for now is to simply upload the data via sftp
 import paramiko
 from findfiles import find_files_iter as find_files
@@ -10,12 +7,10 @@ import json
 from stat import ST_SIZE, ST_MTIME, S_ISDIR
 
 # where's the data on our side ?
-DATA_DIR = './data'
+local_bucket = './data'
 
 # get the username and password
-assert len(sys.argv) >= 4, 'must specify host, username, password'
-
-bucket,host,username,password = tuple(sys.argv[1:5])
+local_bucket,remote_bucket,host,username,password = tuple(sys.argv[1:6])
 
 print 'connecting to %s' % host
 
@@ -29,19 +24,19 @@ sftp = ssh.open_sftp()
 
 # create an upload folder if it doesn't exist
 try:
-    sftp.mkdir(bucket)
+    sftp.mkdir(remote_bucket)
 except:
     pass # already there
 
 # move into our new dir
-sftp.chdir(bucket)
+sftp.chdir(remote_bucket)
 
-print 'uploading to: %s' % bucket
+print 'uploading to: %s' % remote_bucket
 
 # make sure we've got the full data dir
-DATA_DIR = os.path.abspath(DATA_DIR)
+local_bucket = os.path.abspath(local_bucket)
 
-print 'uploading from: %s' % DATA_DIR
+print 'uploading from: %s' % local_bucket
 
 # collect up a snapshot of our state
 snapshot = {}
@@ -60,13 +55,13 @@ print
 
 # go through all the files recursively
 known_folders = []
-for file_path in find_files(DATA_DIR):
+for file_path in find_files(local_bucket):
 
     # get some info on our to-upload file
     #stats = os.stat(file_path)
 
     # where are we uploading it to ?
-    rel_path = file_path[len(DATA_DIR)+1:]
+    rel_path = file_path[len(local_bucket)+1:]
     
     print 'attempting upload uploading: %s' % rel_path
 
@@ -219,7 +214,7 @@ def recursive_find(dirs):
 
             else:
                 # if it's a file download it
-                abs_path = os.path.join(DATA_DIR,rel_path)
+                abs_path = os.path.join(local_bucket,rel_path)
 
                 # make sure the folder exists
                 folder_path = os.path.dirname(abs_path)
