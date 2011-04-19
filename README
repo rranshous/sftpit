@@ -7,3 +7,10 @@ think dropbox but for groups (and w/ less features)
 to run:
 
 python backup.py <local data path> <remote data path> <host> <username> <password>
+
+this is a _prototype_ at this point. before i could recommend anyone risk their
+data with it i'd like to see many more features:
+  concurrent uploads / downloads
+  locking (make sure multiple clients aren't stepping on each other)
+  updating of changed data only (delta updates) instead of replacing whole file
+  .. and much much more
