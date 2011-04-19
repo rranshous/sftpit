@@ -1,4 +1,6 @@
-/data
 *.swp
 *.swo
 *.pyc
+
+/snapshot.json
+/data
