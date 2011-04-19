@@ -68,8 +68,9 @@ def run():
     print 'reading old snapshot'
 
     # read in the old snapshot
-    if os.path.exists('snapshot.json'):
-        with file('./snapshot.json','r') as fh:
+    snapshot_path = 'snapshot.%s.json' % remote_bucket.replace('/','_')
+    if os.path.exists(snapshot_path):
+        with file(snapshot_path,'r') as fh:
             old_snapshot = json.loads(fh.read())
     else:
         print 'old snapshot not found'
@@ -82,7 +83,7 @@ def run():
     for file_path in find_files(local_bucket):
 
         # get some info on our to-upload file
-        #stats = os.stat(file_path)
+        stats = os.stat(file_path)
 
         # where are we uploading it to ?
         rel_path = file_path[len(local_bucket)+1:]
@@ -112,11 +113,14 @@ def run():
 
         # if we have remote stats lets see who's
         # file is newer
-        if remote_stats and old_snapshot.get(rel_path):
+        if remote_stats:
             print 'have remote stats'
 
             # when were the files modified?
-            mtime = old_snapshot.get(rel_path).get('mtime')
+            if old_snapshot.get(rel_path):
+                mtime = old_snapshot.get(rel_path).get('mtime')
+            else:
+                mtime = stats[ST_MTIME]
             r_mtime = remote_stats.st_mtime
 
             print 'mtimes: %s %s' % (mtime,r_mtime)
@@ -268,7 +272,7 @@ def run():
     # save out our snapshot
     print
     print 'writing new snapshot'
-    with file('snapshot.json','w') as fh:
+    with file(snapshot_path,'w') as fh:
         fh.write(json.dumps(snapshot))
 
     print
