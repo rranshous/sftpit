@@ -2,15 +2,36 @@
 # the goal for now is to simply upload the data via sftp
 import paramiko
 from findfiles import find_files_iter as find_files
-import sys, os, random
+import sys, os, random, errno
 import json
 from stat import ST_SIZE, ST_MTIME, S_ISDIR
+import atexit
 
-# where's the data on our side ?
-local_bucket = './data'
 
 # get the username and password
 local_bucket,remote_bucket,host,username,password = tuple(sys.argv[1:6])
+
+print 'local_bucket:',local_bucket
+print 'remote_bucket:',remote_bucket
+print 'host:',host
+print 'username:',username
+print 'password:',len(password) * '*'
+
+# check our lock. if it's set exit if it
+# isn't set than set it and go
+lock_path = '/tmp/sftpit.%s.lock' % remote_bucket.replace('/','_')
+try:
+    fd = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_RDWR)
+except OSError, e:
+    if e.errno == errno.EEXIST:
+        # file exists, we don't have lock
+        print 'failed, lock exists'
+        sys.exit(1)
+    # we got lock! don't actually need the file
+    os.close(fd)
+
+# setup function to delete file when done
+atexit.register(lambda: os.unlink(lock_path))
 
 print 'connecting to %s' % host
 
