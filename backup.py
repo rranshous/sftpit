@@ -187,7 +187,13 @@ for file_path in find_files(local_bucket):
 diff = set(old_snapshot.keys()) - set(snapshot.keys())
 for rel_path in diff:
     print 'deleting from server: %s' % rel_path
-    sftp.remove(rel_path)
+    try:
+        sftp.remove(rel_path)
+    except IOError:
+        # there is a chance it doesn't exist any
+        # more on the other end
+        print 'file did not exist remotely'
+    print
 
 # now that we've gone over all the files on our
 # end, we need to go through all the other files
