@@ -6,23 +6,33 @@ DATA_DIR = './data'
 # the goal for now is to simply upload the data via sftp
 import paramiko
 from findfiles import find_files_iter as find_files
-import sys
+import sys, os
 
 # get the username and password
-assert len(argv) >= 5, 'must specify host, username, password'
-host,username,password = tuple(sys.argv[2:5])
+print 'args: %s' % sys.argv
+
+assert len(sys.argv) >= 4, 'must specify host, username, password'
+
+host,username,password = tuple(sys.argv[1:4])
 
 print 'connecting to %s' % host
 
 # connect to our server
 ssh = paramiko.SSHClient()
 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-ssh.connect(host,username,password)
-sftp = ssh.get_sftp()
+ssh.connect(host,
+            username=username,
+            password=password)
+sftp = ssh.open_sftp()
 
 # create an upload folder if it doesn't exist
 REMOTE_DIR = 'uploads'
-sftp.mkdir(REMOTE_DIR)
+try:
+    sftp.mkdir(REMOTE_DIR)
+except:
+    pass # already there
+
+# move into our new dir
 sftp.chdir(REMOTE_DIR)
 
 print 'uploading to: %s' % REMOTE_DIR
